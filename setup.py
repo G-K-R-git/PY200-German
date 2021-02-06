@@ -88,7 +88,7 @@ class Date:
 
 if __name__ == '__main__':
     some_date1 = Date(30, 3, 3333)
-    print(some_date1.day, some_date1.month, some_date1.year, some_date1)
+    print(some_date1.day, some_date1.month, some_date1.year, some_date1)asdsada
     some_date2 = Date('12.12.1222')
     print(some_date2.day, some_date2.month, some_date2.year)
     some_date3 = Date('12.12')
