@@ -93,3 +93,4 @@ if __name__ == '__main__':
     print(some_date2.day, some_date2.month, some_date2.year)
     some_date3 = Date('12.12')
     print(some_date3.day, some_date3.month, some_date3.year)
+    print("Hello")
