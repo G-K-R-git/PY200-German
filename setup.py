@@ -1,4 +1,4 @@
-from typing import Optional, overload, Tuple, Any
+from typing import Optional, overload
 
 
 class TimeDelta:
@@ -13,7 +13,8 @@ class TimeDelta:
 
     def __str__(self) -> str:
         """Возвращает timedelta в формате dd, mm, yyyy"""
-        return str(f'{self.days} days, {self.months} months, {self.years} years')
+        return str(f'{self.days} day(s), {self.months} month(s), {self.years} year(s)')
+
 
 class Date:
     """Класс для работы с датами"""
@@ -27,11 +28,11 @@ class Date:
     def __init__(self, date: str):
         """Создание даты из строки формата dd.mm.yyyy"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args):
         if len(args) == 1 and isinstance(args[0], str):
             values = args[0].split(".")
             if len(values) != 3:
-                raise ValueError("Incorrect date format")
+                raise ValueError("Incorrect input date format")
             else:
                 self.month = int(values[1])
                 self.year = int(values[2])
@@ -72,7 +73,8 @@ class Date:
         """Возвращает дату в формате Date(day, month, year)"""
         return f"Date({self._day}, {self._month}, {self._year})"
 
-    def is_leap_year(self, year: int) -> bool:
+    @staticmethod
+    def is_leap_year(year: int) -> bool:
         """Проверяет, является ли год високосным"""
         if year % 100 == 0 and year % 400 != 0:
             return False
@@ -176,7 +178,7 @@ class Date:
                 month_count = 1
                 year_count += 1
             days_count = 0
-        result_days = added_days
+        result_days = added_days + days_count
         while self._month + added_months > 12:
             added_years += 1
             added_months -= 12
@@ -184,7 +186,7 @@ class Date:
         result_year = self._year + added_years
         return Date(result_days, result_month, result_year)
 
-    def __iadd__(self, other: TimeDelta) -> "Date":
+    def __iadd__(self, other: TimeDelta):
         """Добавляет к self некий timedelta меняя сам self (+=)"""
         result_date = self.__add__(other)
         self._day = result_date.day
@@ -193,30 +195,4 @@ class Date:
 
 
 if __name__ == '__main__':
-    # some_date1 = Date(30, 3, 3333)
-    # print(some_date1.day, some_date1.month, some_date1.year, some_date1)
-    # some_date2 = Date('12.12.1222')
-    # print(some_date2.day, some_date2.month, some_date2.year)
-    # some_date3 = Date('12.12')
-    # print(some_date3.day, some_date3.month, some_date3.year)
-    some_date4 = Date('2.2.4')
-    print("One date is", some_date4)
-    # print(some_date4.__str__())
-    # print(some_date4.__repr__())
-    some_date5 = Date(2, 2, 4)
-    some_date5.day = 28
-    print(some_date5, "Not a leap year" if not some_date5.is_leap_year(some_date5.year) else "Leap year")
-    print("Number of days for year", some_date5.year, "in month", some_date5.month, ":", some_date5.get_max_day(some_date5.month, some_date5.year))
-    print("Date is valid" if not some_date5.is_valid_date(some_date5.day, some_date5.month, some_date5.year) else "Date is invalid")
-
-    print("days in some_date5:", some_date5.convert_to_days(some_date5.day, some_date5.month, some_date5.year))
-    print("days in some_date4:", some_date4.convert_to_days(some_date4.day, some_date4.month, some_date4.year))
-    print("difference is", some_date5.__sub__(some_date4), "days")
-
-    timedelta1 = TimeDelta(33, 9, 1)
-    print(some_date5.__repr__(), timedelta1)
-    new_added = some_date5.__add__(timedelta1)
-    print(new_added, some_date5, timedelta1)
-    some_date5.__iadd__(timedelta1)
-    print(some_date5)
-
+    print("Hello =)")
