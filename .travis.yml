@@ -4,4 +4,4 @@ python: "3.8"
 install:
   - pip install .[tests]
 script:
-  - pytest --cov-report term-missing --cov date tests
+  - pytest --cov date --cov-report term-missing tests
