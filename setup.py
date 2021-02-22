@@ -8,7 +8,7 @@ setup(
     name=__pckg__,
     version=__version__,
     description="Some description",
-    author="Andrey",
+    author="German",
     author_email="some@example.com",
     packages=find_packages(),
     include_package_data=True,
