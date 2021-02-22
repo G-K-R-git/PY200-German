@@ -7,9 +7,10 @@ __version__ = "0.0.1"
 setup(
     name=__pckg__,
     version=__version__,
-    description="Students' Date class",
-    author="German",
-    packages=find_packages,
+    description="Some description",
+    author="Andrey",
+    author_email="some@example.com",
+    packages=find_packages(),
     include_package_data=True,
     install_requires=[],
     extras_require={
