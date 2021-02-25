@@ -4,14 +4,6 @@ import unittest
 
 class MyTestCase(unittest.TestCase):
 
-    def test_is_instance(self):
-        test_date = Date(1, 1, 1)
-        self.assertIsInstance(test_date, Date, "Your date is note Date class")
-
-    def test_is_instance_timedelta(self):
-        test_timedelta = TimeDelta(1, 1, 1)
-        self.assertIsInstance(test_timedelta, TimeDelta, "Your timedelta is note TimeDelta class")
-
     def test_init(self):
         for i in (-1, 1, 32):
             date = i

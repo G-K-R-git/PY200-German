@@ -3,6 +3,8 @@ from typing import Optional, overload
 
 class TimeDelta:
     def __init__(self, days: Optional[int] = None, months: Optional[int] = None, years: Optional[int] = None):
+        if not isinstance((days or months or years), int):
+            raise ValueError("Incorrect value")
         self.days = days
         self.months = months
         self.years = years
@@ -41,9 +43,7 @@ class Date:
 
         elif len(args) == 3:
             self.is_valid_date(args[0], args[1], args[2])
-            self._day = args[0]
-            self._month = args[1]
-            self._year = args[2]
+            self._day, self._month, self._year = args
         else:
             raise ValueError("Incorrect date format")
 
@@ -93,11 +93,8 @@ class Date:
     @day.setter
     def day(self, value: int):
         """value от 1 до 31. Проверять значение и корректность даты"""
-        if 1 <= value <= 31:
-            self.is_valid_date(value, self._month, self._year)
-            self._day = value
-        else:
-            raise ValueError("Incorrect day")
+        self.is_valid_date(value, self._month, self._year)
+        self._day = value
 
     @property
     def month(self):
@@ -106,11 +103,8 @@ class Date:
     @month.setter
     def month(self, value: int):
         """value от 1 до 12. Проверять значение и корректность даты"""
-        if 1 <= value <= 12:
-            self.is_valid_date(self._day, value, self._year)
-            self._month = value
-        else:
-            raise ValueError("Incorrect month")
+        self.is_valid_date(self._day, value, self._year)
+        self._month = value
 
     @property
     def year(self):
@@ -119,25 +113,18 @@ class Date:
     @year.setter
     def year(self, value: int):
         """value от 1 до ... . Проверять значение и корректность даты"""
-        if 1 <= value:
-            self.is_valid_date(self._day, self._month, value)
-            self._year = value
-        else:
-            raise ValueError("Incorrect year")
+        self.is_valid_date(self._day, self._month, value)
+        self._year = value
 
-    def convert_to_days(self, day: int, month: int, year: int) -> int:
+    def convert_to_days(self) -> int:
         """Возвращает количество дней в дате"""
-        days_from_days = day
+        days_from_days = self._day
         days_from_month = 0
-        for mon in range(month):
-            if mon == 1:
-                day_num = self.days_in_month[1][self.is_leap_year(year)]
-            else:
-                day_num = self.days_in_month[mon]
-            days_from_month += day_num
+        for mon in range(self._month+1):
+            days_from_month += self.get_max_day(mon, self._year)
 
         days_from_years, day_num = 0, 0
-        for y in range(year):
+        for y in range(self._year):
             if self.is_leap_year(y):
                 days_from_years += 366
             else:
@@ -148,18 +135,20 @@ class Date:
         """Разница между датой self и other (-)"""
         if not isinstance(other, Date):
             return NotImplemented
-        day_num1 = self.convert_to_days(self._day, self._month, self._year)
-        day_num2 = self.convert_to_days(other._day, other._month, other._year)
+        day_num1 = self.convert_to_days()
+        day_num2 = other.convert_to_days()
         return day_num1 - day_num2
 
     def __add__(self, other: TimeDelta) -> "Date":
         """Складывает self и некий timedeltа. Возвращает НОВЫЙ инстанс Date, self не меняет (+)"""
+        # Сначала добавляем дни
         added_days = other.days
         added_months = other.months
         added_years = other.years
         month_count = self._month
         days_count = self._day
         year_count = 0
+        # Цикл добавления дней с автоматическим перескоком месяцев и лет
         while added_days + days_count > self.get_max_day(month_count, self._year + year_count):
             added_days = added_days + days_count - self.get_max_day(month_count, self._year + year_count)
             added_months += 1
@@ -169,12 +158,15 @@ class Date:
                 year_count += 1
             days_count = 0
         result_days = added_days + days_count
+        # Теперь добавлем месяцы с автоматическим перескоком лет
         while self._month + added_months > 12:
             added_years += 1
             added_months -= 12
         result_month = self._month + added_months
+        # Добавляем годы
         result_year = self._year + added_years
 
+        # Проверка на случай, если полученный год-месяц не подходят для ранее высчитанного окличества дней
         if result_days > self.get_max_day(result_month, result_year):
             result_days -= self.get_max_day(result_month, result_year)
             result_month += 1

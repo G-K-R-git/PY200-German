@@ -18,13 +18,17 @@ def test_init_date_incorrect(day, month, year):
     (-1, -1, -1),
     (1, -1, -1),
     (1, 1, -1),
-    (None, None, None)
 ])
 def test_init_timedelta(day, month, year):
     test_timedelta = TimeDelta(day, month, year)
     assert test_timedelta.days == day
     assert test_timedelta.months == month
     assert test_timedelta.years == year
+
+
+def test_init_timedelta_incorrect():
+    with pytest.raises(ValueError):
+        test_timedelta = TimeDelta(None, None, None)
 
 
 def test_repr_str_timedelta():
@@ -34,7 +38,7 @@ def test_repr_str_timedelta():
 
 
 def test_correct_str_date():
-    test_date = Date("3.3.3")
+    assert str(Date("3.3.3")) == "03.03.0003"
 
 
 def test_incorrect_date():
@@ -50,14 +54,16 @@ def test_str_repr_date():
     assert str(test_date) == "01.01.0001"
 
 
-def test_leap():
-    answers = []
-    for year in (1, 100, 400, 1000, 2001):
-        test_date = Date(11, 2, year)
-        answers.append(test_date.is_leap_year(year))
-    assert answers == [False, False, True, False, False]
-    with pytest.raises(ValueError):
-        test_date.is_leap_year("f")
+@pytest.mark.parametrize("year", [1, 100, 1000, 2001])
+def test_is_not_leap(year):
+    test_date = Date(11, 2, year)
+    assert test_date.is_leap_year(test_date.year) == False
+
+
+@pytest.mark.parametrize("year", [4, 400, 2000, 16])
+def test_is_leap(year):
+    test_date = Date(11, 2, year)
+    assert test_date.is_leap_year(test_date.year) == True
 
 
 @pytest.mark.parametrize("day", [0, 32])
@@ -87,13 +93,16 @@ def test_year_setter():
     with pytest.raises(ValueError):
         test_date.year = 0
 
-
-def test_sub():
-    test_date1 = Date(11, 11, 1111)
-    test_date2 = Date(12, 12, 1112)
-    assert test_date1 - test_date2 == -398
-    test_date2 = Date(12, 12, 400)
-    assert test_date1 - test_date2 == 259654
+@pytest.mark.parametrize("date1, date2, expected", [
+    (Date(11, 11, 1111), Date(12, 11, 1111), -1),
+    (Date(12, 11, 1111), Date(12, 11, 1111), 0),
+    (Date(12, 12, 1111), Date(12, 11, 1111), 31),
+    (Date(3, 1, 2222), Date(12, 11, 1111), 405473),
+    (Date(1, 1, 1), Date(1, 1, 2), -365),
+    (Date(1, 1, 4), Date(1, 1, 5), -366),
+])
+def test_sub(date1, date2, expected):
+    assert date1 - date2 == expected
 
 
 def test_some_test():
@@ -103,31 +112,20 @@ def test_some_test():
     assert res == NotImplemented
 
 
-def test_add():
-    test_date = Date(11, 11, 1111)
-    timedelta = TimeDelta(2000, 1, 1)
-    summ = test_date + timedelta
-    assert str(summ) == "03.06.1118"
-    test_date = Date(28, 2, 400)
-    timedelta = TimeDelta(2, 11, 400)
-    summ = test_date + timedelta
-    assert str(summ) == "01.02.0801"
-    test_date = Date(1, 10, 1)
-    timedelta = TimeDelta(30, 1, 0)
-    summ = test_date + timedelta
-    assert str(summ) == "01.12.0001"
+@pytest.mark.parametrize("date1, date2, expected", [
+    (Date(11, 11, 1111), TimeDelta(2000, 1, 1), "03.06.1118"),
+    (Date(28, 2, 400), TimeDelta(2, 11, 400), "01.02.0801"),
+    (Date(1, 10, 1), TimeDelta(30, 1, 0), "01.12.0001"),
+])
+def test_add(date1, date2, expected):
+    assert str(date1 + date2) == expected
 
 
-def test_iadd():
-    test_date = Date(11, 11, 1111)
-    timedelta = TimeDelta(1, 1, 1)
-    test_date += timedelta
-    assert str(test_date) == "12.12.1112"
-    test_date = Date(28, 2, 400)
-    timedelta = TimeDelta(2, 9, 400)
-    test_date += timedelta
-    assert str(test_date) == "01.12.0800"
-    test_date = Date(31, 12, 400)
-    timedelta = TimeDelta(1, 0, 0)
-    test_date += timedelta
-    assert str(test_date) == "01.01.0401"
+@pytest.mark.parametrize("date1, date2, expected", [
+    (Date(11, 11, 1111), TimeDelta(1, 1, 1), "12.12.1112"),
+    (Date(28, 2, 400), TimeDelta(2, 9, 400), "01.12.0800"),
+    (Date(31, 12, 400), TimeDelta(31, 12, 400), "31.01.0802"),
+])
+def test_iadd(date1, date2, expected):
+    date1 += date2
+    assert str(date1) == expected
