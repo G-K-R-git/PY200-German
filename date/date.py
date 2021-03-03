@@ -3,7 +3,7 @@ from typing import Optional, overload
 
 class TimeDelta:
     def __init__(self, days: Optional[int] = None, months: Optional[int] = None, years: Optional[int] = None):
-        if not isinstance((days or months or years), int):
+        if not all(isinstance(part, int) for part in (days, months, years)):
             raise ValueError("Incorrect value")
         self.days = days
         self.months = months
